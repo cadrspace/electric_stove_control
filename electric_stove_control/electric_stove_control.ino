@@ -19,7 +19,7 @@ const int16_t T_MAX = 250; // C
 uint8_t t_limit = 50;      // C
 
 // PID
-double setpoint, input, output;
+double setpoint = 30, input, output;
 double kp = 2, ki = 5, kd = 1;
 PID pid(&input, &output, &setpoint, kp, ki, kd, DIRECT);
 const int16_t WINDOW_SIZE = 5000;
@@ -73,11 +73,11 @@ float steinhart(float resistance) {
   return result;
 }
 
-void update_t_limit_x() {
+void update_setpoint_x() {
   if (digitalRead(BTN_T_UP_PIN) && (t_limit < T_MAX)) {
-    t_limit++;
+    setpoint++;
   } else if (digitalRead(BTN_T_DOWN_PIN) && (t_limit > T_MIN)) {
-    t_limit--;
+    setpoint--;
   }
 }
 
@@ -95,13 +95,14 @@ float get_temp() {
 }
 
 void loop() {
-  float temp = get_temp();
+  input = get_temp();
   Serial.print("Temperature: ");
-  Serial.println(temp);
+  Serial.println(input);
+  pid.Compute();
 
-  update_t_limit_x();
+  update_setpoint_x();
   Serial.print("Limit: ");
-  Serial.println(t_limit);
+  Serial.println(setpoint);
 
   delay(1000);
 }

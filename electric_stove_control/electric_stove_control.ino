@@ -57,8 +57,10 @@ float steinhart(float resistance) {
 
 void update_setpoint_x() {
   if (! digitalRead(BTN_T_UP_PIN) && (setpoint < T_MAX)) {
+    Serial.println(setpoint);
     setpoint++;
   } else if (! digitalRead(BTN_T_DOWN_PIN) && (setpoint > T_MIN)) {
+    Serial.println(setpoint);
     setpoint--;
   }
 }
@@ -66,18 +68,16 @@ void update_setpoint_x() {
 float get_temp() {
   int16_t raw_value = get_thermistor_value();
   float avg = value_to_resistance(raw_value);
-  Serial.print("Thermistor resistance: ");
-  Serial.println(avg);
   return steinhart(avg);
 }
 
 void loop() {
-  input = get_temp();
-  Serial.print("Temperature: ");
-  Serial.println(input);
+  input = (input * 0.8) + (get_temp() * 0.2);
 
   update_setpoint_x();
-  Serial.print("Limit: ");
+
+  Serial.print(input);
+  Serial.print(",");
   Serial.println(setpoint);
 
   pid.Compute();
@@ -85,11 +85,10 @@ void loop() {
   if ((millis() - window_start_time) > WINDOW_SIZE) {
     window_start_time += WINDOW_SIZE;
   }
-  if ((output < millis()) - window_start_time) {
-    //Serial.println("a");
+
+  if (output < (millis() - window_start_time)) {
     digitalWrite(RELAY_PIN, HIGH);
   } else {
-    //Serial.println("b");
     digitalWrite(RELAY_PIN, LOW);
   }
 }

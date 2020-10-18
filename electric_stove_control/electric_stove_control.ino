@@ -1,3 +1,7 @@
+#include <PID_v1.h>
+
+const int8_t RELAY_PIN = 3;
+
 const int32_t THERMISTOR_PIN      = A0;
 const int32_t THERMISTOR_NOMINAL  = 100000; // Ohms
 const int32_t RESISTOR_NOMINAL    = 82000;  // Ohms
@@ -14,15 +18,33 @@ const int16_t T_MIN = 0;   // C
 const int16_t T_MAX = 250; // C
 uint8_t t_limit = 50;      // C
 
+// PID
+double setpoint, input, output;
+double kp = 2, ki = 5, kd = 1;
+PID pid(&input, &output, &setpoint, kp, ki, kd, DIRECT);
+const int16_t WINDOW_SIZE = 5000;
+uint32_t window_start_time;
+
 void setup() {
   Serial.begin(9600);
   pinMode(BTN_T_UP_PIN, INPUT);
   pinMode(BTN_T_DOWN_PIN, INPUT);
+  pinMode(RELAY_PIN, OUTPUT);
+
+  window_start_time = millis();
+  pid.SetOutputLimits(0, WINDOW_SIZE);
+
+  //turn the PID on
+  pid.SetMode(AUTOMATIC);
+}
+
+int16_t get_thermistor_value() {
+  return analogRead(THERMISTOR_PIN);
 }
 
 void take_samples_x() {
   for (uint16_t idx = 0; idx < NUM_SAMPLES; ++idx) {
-    samples[idx] = analogRead(THERMISTOR_PIN);
+    samples[idx] = get_thermistor_value();
     delay(10);
   }
 }
@@ -59,7 +81,7 @@ void update_t_limit_x() {
   }
 }
 
-void loop() {
+float get_temp() {
   take_samples_x();
   float avg = calculate_avg();
   Serial.print("Average: ");
@@ -69,7 +91,11 @@ void loop() {
   Serial.print("Thermistor resistance: ");
   Serial.println(avg);
 
-  float temp = steinhart(avg);
+  return steinhart(avg);
+}
+
+void loop() {
+  float temp = get_temp();
   Serial.print("Temperature: ");
   Serial.println(temp);
 

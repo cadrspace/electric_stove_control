@@ -14,7 +14,6 @@ const int8_t BTN_T_DOWN_PIN = 3;
 
 const int16_t T_MIN = 0;   // C
 const int16_t T_MAX = 250; // C
-uint8_t t_limit = 50;      // C
 
 // PID
 double setpoint = 30, input, output;
@@ -25,8 +24,8 @@ uint32_t window_start_time;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(BTN_T_UP_PIN, INPUT);
-  pinMode(BTN_T_DOWN_PIN, INPUT);
+  pinMode(BTN_T_UP_PIN, INPUT_PULLUP);
+  pinMode(BTN_T_DOWN_PIN, INPUT_PULLUP);
   pinMode(RELAY_PIN, OUTPUT);
 
   window_start_time = millis();
@@ -57,9 +56,9 @@ float steinhart(float resistance) {
 }
 
 void update_setpoint_x() {
-  if (digitalRead(BTN_T_UP_PIN) && (t_limit < T_MAX)) {
+  if (! digitalRead(BTN_T_UP_PIN) && (setpoint < T_MAX)) {
     setpoint++;
-  } else if (digitalRead(BTN_T_DOWN_PIN) && (t_limit > T_MIN)) {
+  } else if (! digitalRead(BTN_T_DOWN_PIN) && (setpoint > T_MIN)) {
     setpoint--;
   }
 }
@@ -76,11 +75,20 @@ void loop() {
   input = get_temp();
   Serial.print("Temperature: ");
   Serial.println(input);
-  pid.Compute();
 
   update_setpoint_x();
   Serial.print("Limit: ");
   Serial.println(setpoint);
 
-  delay(1000);
+  pid.Compute();
+
+  if ((millis() - window_start_time) > WINDOW_SIZE) {
+    window_start_time += WINDOW_SIZE;
+  }
+  if ((output < millis()) - window_start_time) {
+    digitalWrite(RELAY_PIN, HIGH);
+  } else {
+    digitalWrite(RELAY_PIN, LOW);
+  }
+  delay(500);
 }

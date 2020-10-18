@@ -1,6 +1,6 @@
 #include <PID_v1.h>
 
-const int8_t RELAY_PIN = 3;
+const int8_t RELAY_PIN = 4;
 
 const int32_t THERMISTOR_PIN      = A0;
 const int32_t THERMISTOR_NOMINAL  = 100000; // Ohms
@@ -86,9 +86,10 @@ void loop() {
     window_start_time += WINDOW_SIZE;
   }
   if ((output < millis()) - window_start_time) {
+    //Serial.println("a");
     digitalWrite(RELAY_PIN, HIGH);
   } else {
+    //Serial.println("b");
     digitalWrite(RELAY_PIN, LOW);
   }
-  delay(500);
 }

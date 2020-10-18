@@ -12,8 +12,6 @@ const int32_t B_COEFFICIENT       = 3950;
 const int8_t BTN_T_UP_PIN   = 2;
 const int8_t BTN_T_DOWN_PIN = 3;
 
-uint16_t samples[NUM_SAMPLES];
-
 const int16_t T_MIN = 0;   // C
 const int16_t T_MAX = 250; // C
 uint8_t t_limit = 50;      // C
@@ -42,21 +40,6 @@ int16_t get_thermistor_value() {
   return analogRead(THERMISTOR_PIN);
 }
 
-void take_samples_x() {
-  for (uint16_t idx = 0; idx < NUM_SAMPLES; ++idx) {
-    samples[idx] = get_thermistor_value();
-    delay(10);
-  }
-}
-
-float calculate_avg() {
-  float sum = 0;
-  for (uint8_t idx = 0; idx < NUM_SAMPLES; ++idx) {
-    sum += samples[idx];
-  }
-  return sum / NUM_SAMPLES;
-}
-
 float value_to_resistance(float val) {
   return RESISTOR_NOMINAL / (1023 / val - 1);
 }
@@ -82,15 +65,10 @@ void update_setpoint_x() {
 }
 
 float get_temp() {
-  take_samples_x();
-  float avg = calculate_avg();
-  Serial.print("Average: ");
-  Serial.println(avg);
-
-  avg = value_to_resistance(avg);
+  int16_t raw_value = get_thermistor_value();
+  float avg = value_to_resistance(raw_value);
   Serial.print("Thermistor resistance: ");
   Serial.println(avg);
-
   return steinhart(avg);
 }
 

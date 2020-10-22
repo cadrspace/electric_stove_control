@@ -1,4 +1,5 @@
 #include <PID_v1.h>
+#include <LiquidCrystal.h>
 
 const int8_t RELAY_PIN = 4;
 
@@ -22,6 +23,8 @@ PID pid(&input, &output, &setpoint, kp, ki, kd, DIRECT);
 const int16_t WINDOW_SIZE = 5000;
 uint32_t window_start_time;
 
+LiquidCrystal lcd(11, 12, 7, 8, 9, 10);
+
 void setup() {
   Serial.begin(9600);
   pinMode(BTN_T_UP_PIN, INPUT_PULLUP);
@@ -33,6 +36,8 @@ void setup() {
 
   //turn the PID on
   pid.SetMode(AUTOMATIC);
+
+  lcd.begin(16, 2);
 }
 
 int16_t get_thermistor_value() {
@@ -79,6 +84,12 @@ void loop() {
   Serial.print(input);
   Serial.print(",");
   Serial.println(setpoint);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Tset: ");
+  lcd.print((int) setpoint);
+  lcd.print(" T: ");
+  lcd.print((int) input);
 
   pid.Compute();
 

@@ -10,8 +10,8 @@ const int32_t TEMPERATURE_NOMINAL = 25;  // C
 const int32_t NUM_SAMPLES         = 5;
 const int32_t B_COEFFICIENT       = 3950;
 
-const int8_t BTN_T_UP_PIN   = 2;
-const int8_t BTN_T_DOWN_PIN = 3;
+const int8_t BTN_T_UP_PIN   = 3;
+const int8_t BTN_T_DOWN_PIN = 2;
 
 const int16_t T_MIN = 0;   // C
 const int16_t T_MAX = 250; // C
@@ -23,7 +23,7 @@ PID pid(&input, &output, &setpoint, kp, ki, kd, DIRECT);
 const int16_t WINDOW_SIZE = 5000;
 uint32_t window_start_time;
 
-LiquidCrystal lcd(11, 12, 7, 8, 9, 10);
+LiquidCrystal lcd(12, 11, 4, 5, 6, 7);
 
 void setup() {
   Serial.begin(9600);

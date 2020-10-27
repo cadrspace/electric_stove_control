@@ -14,7 +14,7 @@ const int8_t BTN_T_UP_PIN   = 3;
 const int8_t BTN_T_DOWN_PIN = 2;
 
 const int16_t T_MIN = 0;   // C
-const int16_t T_MAX = 250; // C
+const int16_t T_MAX = 300; // C
 
 // PID
 double setpoint = 30, input, output;

@@ -1,7 +1,7 @@
 #include <PID_v1.h>
 #include <LiquidCrystal.h>
 
-const int8_t RELAY_PIN = 4;
+const int8_t RELAY_PIN = 8;
 
 const int32_t THERMISTOR_PIN      = A0;
 const int32_t THERMISTOR_NOMINAL  = 100000; // Ohms

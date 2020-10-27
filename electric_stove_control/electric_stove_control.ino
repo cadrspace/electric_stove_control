@@ -76,6 +76,13 @@ float get_temp() {
   return steinhart(avg);
 }
 
+void clear_row(int row, int from) {
+  for (int idx = from; idx < 16; ++idx) {
+    lcd.setCursor(idx, row);
+    lcd.print(" ");
+  }
+}
+
 void loop() {
   input = (input * 0.8) + (get_temp() * 0.2);
 
@@ -86,10 +93,10 @@ void loop() {
   Serial.println(setpoint);
 
   lcd.setCursor(0, 0);
-  lcd.print("Tset: ");
-  lcd.print((int) setpoint);
-  lcd.print(" T: ");
-  lcd.print((int) input);
+  String str = String("Tset: ") + (int) setpoint 
+                 + " T: " + (int) input;
+  lcd.print(str);
+  clear_row(0, str.length());
 
   pid.Compute();
 
